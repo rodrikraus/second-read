@@ -1,2 +1,24 @@
 # The exercise brief is Sellervate's document, not ours to publish.
 Sellervate-Technical-Exercise.pdf
+
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+
+# env files: only the example is committed
+.env*
+!.env.example
+
+# supabase cli local state
+supabase/.branches
+supabase/.temp
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*
