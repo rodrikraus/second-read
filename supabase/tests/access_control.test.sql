@@ -47,7 +47,7 @@ insert into public.reviews (reply_id, brand_id, reviewer_id, score) values
   ('40000000-0000-0000-0000-000000000002', '20000000-0000-0000-0000-00000000000b', '10000000-0000-0000-0000-00000000000b', 4);
 
 select results_eq(
-  $$ select rp.external_id, rv.selection from public.reviews rv join public.replies rp on rp.id = rv.reply_id order by 1 $$,
+  $$ select rp.external_id, rv.selection from public.reviews rv join public.replies rp on rp.id = rv.reply_id where rp.source = 'test' order by 1 $$,
   $$ values ('a-2', 'sample'), ('b-1', 'targeted') $$,
   'selection comes from the brand sample rate, not from the client'
 );
