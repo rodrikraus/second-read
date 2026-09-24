@@ -299,11 +299,30 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      criterion_miss_rates: {
+        Args: { p_brand_id: string; p_specialist_id?: string; p_weeks?: number }
+        Returns: {
+          category: string
+          criterion_id: string
+          label: string
+          previous_rate: number
+          recent_misses: number
+          recent_rate: number
+          severity: string
+        }[]
+      }
       in_sample: {
         Args: { "": Database["public"]["Tables"]["replies"]["Row"] }
         Returns: {
           error: true
         } & "the function public.in_sample with parameter or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache"
+      }
+      sample_coverage: {
+        Args: { p_brand_id: string; p_weeks?: number }
+        Returns: {
+          reviewed: number
+          sampled_replies: number
+        }[]
       }
       save_review: {
         Args: {
@@ -313,6 +332,25 @@ export type Database = {
           p_score: number
         }
         Returns: string
+      }
+      specialist_scores: {
+        Args: { p_brand_id: string; p_weeks?: number }
+        Returns: {
+          full_name: string
+          previous_avg: number
+          recent_avg: number
+          recent_reviews: number
+          specialist_id: string
+        }[]
+      }
+      weekly_scores: {
+        Args: { p_brand_id: string; p_specialist_id?: string; p_weeks?: number }
+        Returns: {
+          avg_score: number
+          met_standard: number
+          reviews: number
+          week: string
+        }[]
       }
     }
     Enums: {
