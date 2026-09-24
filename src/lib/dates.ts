@@ -9,8 +9,9 @@ export function formatShortDay(iso: string): string {
   return shortDay.format(new Date(iso));
 }
 
+// Labelled, so nobody reads a UTC time as their local one.
 export function formatTime(iso: string): string {
-  return clock.format(new Date(iso));
+  return `${clock.format(new Date(iso))} UTC`;
 }
 
 // How long the customer waited for this reply: "45 min", "3 h 10 min", "26 h".
