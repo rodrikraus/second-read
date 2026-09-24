@@ -21,7 +21,7 @@ npm run dev               # http://localhost:3000
 
 To keep the first start fast, `supabase/config.toml` turns off the Supabase services this app does not use: Studio, Storage, Realtime, Edge Functions, analytics and the mail catcher. Set `enabled = true` under `[studio]` if you want the table browser at http://127.0.0.1:54323.
 
-`db:start` loads the seed the first time. `npm run db:reset` rebuilds the database from the migrations and the seed at any point. Seed dates are relative to the day you run it, so yesterday always has replies waiting.
+`db:start` loads the seed only the first time. Seed dates are relative to the day the seed runs, so run `npm run db:reset` before trying the app on any later day: it rebuilds the database from the migrations and the seed, and yesterday has replies waiting again.
 
 ## Being each role
 
