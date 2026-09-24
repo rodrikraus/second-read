@@ -50,7 +50,7 @@ export default async function ReviewReplyPage({ params, searchParams }: PageProp
           </span>
         ) : (
           <span className="inline-block rounded-full bg-base-300/70 px-2.5 py-0.5 text-sm font-medium text-base-content/75">
-            Not in the sample · a review would be kept out of the trend
+            Not in the daily sample
           </span>
         )}
       </header>
