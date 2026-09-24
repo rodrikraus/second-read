@@ -1,10 +1,12 @@
 import type { CSSProperties } from "react";
 
-// A stable hue per brand, computed from its slug, so a new brand needs no design work.
+// A stable hue per brand, computed from its slug, so a new brand needs no
+// design work. Kept between green and magenta (150 to 330): red, orange and
+// amber belong to scores and severity, and a brand must never look like a warning.
 function brandHue(slug: string): number {
   let hash = 0;
   for (const char of slug) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
-  return hash % 360;
+  return 150 + (hash % 180);
 }
 
 export function BrandChip({ slug, name }: { slug: string; name: string }) {
