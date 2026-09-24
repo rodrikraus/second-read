@@ -79,12 +79,18 @@
   --text-reading: 1.0625rem;
   --text-reading--line-height: 1.75rem;
 
-  /* Score levels, one hue each, harmful to exemplary. */
+  /*
+    Score levels as a diverging scale: red for harm, a neutral grey at 3,
+    teal-blue for good, darker at both ends. Checked with a colour-vision
+    validator: neighbouring steps stay apart for colour-blind readers too.
+    Colour is never the only cue; the number and its label always travel
+    with it, and text stays in ink.
+  */
   --color-score-1: oklch(50% 0.18 27);
-  --color-score-2: oklch(58% 0.15 52);
-  --color-score-3: oklch(60% 0.1 88);
-  --color-score-4: oklch(53% 0.09 158);
-  --color-score-5: oklch(44% 0.1 175);
+  --color-score-2: oklch(66% 0.13 40);
+  --color-score-3: oklch(80% 0.008 85);
+  --color-score-4: oklch(62% 0.12 205);
+  --color-score-5: oklch(45% 0.11 220);
 }
 
 @layer base {
