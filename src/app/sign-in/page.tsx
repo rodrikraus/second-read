@@ -44,7 +44,8 @@ function AccountList({ title, accounts }: { title: string; accounts: Account[] }
 
 export default async function SignInPage({ searchParams }: PageProps<"/sign-in">) {
   const { error } = await searchParams;
-  const message = typeof error === "string" ? errors[error] : undefined;
+  // Own keys only: ?error=constructor must not reach Object.prototype.
+  const message = typeof error === "string" && Object.hasOwn(errors, error) ? errors[error] : undefined;
 
   return (
     <main className="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center gap-8 px-6 py-16">
