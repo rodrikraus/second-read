@@ -5,11 +5,11 @@ import { BrandChip } from "@/components/brand-chip";
 import { ScoreBadge } from "@/components/score-badge";
 import { getQueue, type QueueReply } from "@/lib/data/review-queue";
 import { getViewer } from "@/lib/data/viewer";
-import { describeDay, formatTime, formatWait } from "@/lib/dates";
+import { addDays, describeDay, formatShortDay, formatTime, formatWait, startOfDay, today } from "@/lib/dates";
 
 export const metadata: Metadata = { title: "Review" };
 
-export default async function ReviewQueuePage() {
+export default async function ReviewQueuePage({ searchParams }: PageProps<"/review">) {
   const viewer = await getViewer();
   if (!viewer) redirect("/sign-in");
 
@@ -25,19 +25,34 @@ export default async function ReviewQueuePage() {
     );
   }
 
-  const queue = await getQueue(viewer);
+  const { day } = await searchParams;
+  const queue = await getQueue(viewer, typeof day === "string" ? day : undefined);
   const reviewed = queue.sample.filter((r) => r.myScore !== null).length;
   const next = queue.sample.find((r) => r.myScore === null);
+  const dayBefore = addDays(queue.day, -1);
+  const dayAfter = addDays(queue.day, 1);
 
   return (
     <div className="space-y-8">
-      <header>
-        <p className="text-sm text-base-content/70">{describeDay(queue.day)}</p>
-        <h1 className="text-2xl font-semibold tracking-tight">Review</h1>
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-sm text-base-content/70">{describeDay(queue.day)}</p>
+          <h1 className="text-2xl font-semibold tracking-tight">Review</h1>
+        </div>
+        <nav aria-label="Day" className="flex gap-1">
+          <Link href={`/review?day=${dayBefore}`} className="btn btn-ghost btn-sm font-normal">
+            ← {formatShortDay(startOfDay(dayBefore))}
+          </Link>
+          {dayAfter < today() && (
+            <Link href={`/review?day=${dayAfter}`} className="btn btn-ghost btn-sm font-normal">
+              {formatShortDay(startOfDay(dayAfter))} →
+            </Link>
+          )}
+        </nav>
       </header>
 
       {queue.sample.length + queue.others.length === 0 ? (
-        <Empty title="Nothing went out yet">There are no replies on your brands to review.</Empty>
+        <Empty title="Nothing went out that day">Try the day before.</Empty>
       ) : (
         <>
           <section className="rounded-box border border-base-300 bg-base-100">

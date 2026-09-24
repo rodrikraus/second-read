@@ -1,5 +1,5 @@
 import "server-only";
-import { addDays, dayOf, startOfDay, today, type Day } from "@/lib/dates";
+import { addDays, dayOf, isDay, startOfDay, today, type Day } from "@/lib/dates";
 import type { Score } from "@/lib/scores";
 import { createClient } from "@/lib/supabase/server";
 import type { BrandRef, Viewer } from "@/lib/data/viewer";
@@ -25,12 +25,12 @@ export type Queue = {
 type Supabase = Awaited<ReturnType<typeof createClient>>;
 
 // Everything sent on one day on the brands this lead leads, the daily sample
-// first. It opens on the last day anything went out: yesterday on a normal
-// morning, Friday on a Monday.
-export async function getQueue(viewer: Viewer): Promise<Queue> {
+// first. Without a day it opens on the last day anything went out: yesterday
+// on a normal morning, Friday on a Monday.
+export async function getQueue(viewer: Viewer, requestedDay?: string): Promise<Queue> {
   const supabase = await createClient();
   const brandIds = viewer.leads.map((b) => b.id);
-  const day = await lastDayWithReplies(supabase, brandIds);
+  const day = isDay(requestedDay) ? requestedDay : await lastDayWithReplies(supabase, brandIds);
 
   const { data, error } = await supabase
     .from("replies")
