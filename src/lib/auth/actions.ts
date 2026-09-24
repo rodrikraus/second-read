@@ -28,8 +28,10 @@ export async function signInAs(formData: FormData) {
   redirect("/");
 }
 
+// Local scope: the demo accounts are shared, so signing out here must not end
+// the same person's session in someone else's browser.
 export async function signOut() {
   const supabase = await createClient();
-  await supabase.auth.signOut();
+  await supabase.auth.signOut({ scope: "local" });
   redirect("/sign-in");
 }
