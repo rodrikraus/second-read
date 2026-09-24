@@ -7,10 +7,16 @@ import { Conversation } from "@/components/conversation";
 import { getReplyForReview } from "@/lib/data/review";
 import { getViewer } from "@/lib/data/viewer";
 import { formatShortDay, formatWait } from "@/lib/dates";
+import { ReviewForm } from "./review-form";
 
 export const metadata: Metadata = { title: "Review a reply" };
 
-export default async function ReviewReplyPage({ params }: PageProps<"/review/[replyId]">) {
+const errors: Record<string, string> = {
+  "no-score": "Pick a score before saving.",
+  "not-saved": "The review was not saved. Try again, or check this reply is on a brand you lead.",
+};
+
+export default async function ReviewReplyPage({ params, searchParams }: PageProps<"/review/[replyId]">) {
   const viewer = await getViewer();
   if (!viewer) redirect("/sign-in");
 
@@ -18,8 +24,11 @@ export default async function ReviewReplyPage({ params }: PageProps<"/review/[re
   const reply = await getReplyForReview(viewer, replyId);
   if (!reply) notFound();
 
+  const { saved, error } = await searchParams;
+  const errorMessage = typeof error === "string" && Object.hasOwn(errors, error) ? errors[error] : null;
+
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="space-y-6">
       <Link href="/review" className="text-sm text-base-content/70 hover:text-base-content">
         ← Review queue
       </Link>
@@ -46,15 +55,40 @@ export default async function ReviewReplyPage({ params }: PageProps<"/review/[re
         )}
       </header>
 
-      <Conversation
-        customerName={reply.customerName}
-        customerMessage={reply.customerMessage}
-        customerWroteAt={reply.customerWroteAt}
-        specialistName={reply.specialistName}
-        body={reply.body}
-        sentAt={reply.sentAt}
-      />
-      <BrandStandard name={reply.brand.name} voice={reply.brand.voice} procedures={reply.brand.procedures} />
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_25rem]">
+        <div className="space-y-6">
+          <Conversation
+            customerName={reply.customerName}
+            customerMessage={reply.customerMessage}
+            customerWroteAt={reply.customerWroteAt}
+            specialistName={reply.specialistName}
+            body={reply.body}
+            sentAt={reply.sentAt}
+          />
+          <BrandStandard name={reply.brand.name} voice={reply.brand.voice} procedures={reply.brand.procedures} />
+        </div>
+
+        <aside className="space-y-3 lg:sticky lg:top-6 lg:self-start">
+          {saved === "1" && (
+            <p role="status" className="alert alert-success alert-soft text-sm">
+              Review saved.
+            </p>
+          )}
+          {errorMessage && (
+            <p role="alert" className="alert alert-error alert-soft text-sm">
+              {errorMessage}
+            </p>
+          )}
+          <div className="rounded-box border border-base-300 bg-base-100 p-5">
+            {reply.myReview && (
+              <p className="mb-4 text-sm text-base-content/70">
+                You reviewed this on {formatShortDay(reply.myReview.updatedAt)}. Saving again updates it.
+              </p>
+            )}
+            <ReviewForm reply={reply} />
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }
