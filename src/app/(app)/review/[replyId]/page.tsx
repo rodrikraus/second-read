@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { BrandChip } from "@/components/brand-chip";
 import { BrandStandard } from "@/components/brand-standard";
 import { Conversation } from "@/components/conversation";
+import { SavedNotice } from "@/components/saved-notice";
 import { getReplyForReview } from "@/lib/data/review";
 import { getViewer } from "@/lib/data/viewer";
 import { formatShortDay, formatWait } from "@/lib/dates";
@@ -69,11 +70,7 @@ export default async function ReviewReplyPage({ params, searchParams }: PageProp
         </div>
 
         <aside className="space-y-3 lg:sticky lg:top-6 lg:self-start">
-          {saved === "1" && (
-            <p role="status" className="alert alert-success alert-soft text-sm">
-              Review saved.
-            </p>
-          )}
+          {saved === "1" && <SavedNotice />}
           {errorMessage && (
             <p role="alert" className="alert alert-error alert-soft text-sm">
               {errorMessage}
