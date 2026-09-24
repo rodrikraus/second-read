@@ -9,6 +9,10 @@ const clock = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-dig
 // A calendar day as "YYYY-MM-DD".
 export type Day = string;
 
+export function isDay(value: unknown): value is Day {
+  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value));
+}
+
 export function today(): Day {
   return new Date().toISOString().slice(0, 10);
 }

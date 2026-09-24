@@ -12,12 +12,13 @@ const severityDot = {
 
 // A plain HTML form: a score, the criteria the reply missed, and a note to
 // the specialist. It posts to the saveReview server action.
-export function ReviewForm({ reply }: { reply: ReplyForReview }) {
+// nextId is the next sampled reply still to review that day, if any.
+export function ReviewForm({ reply, nextId }: { reply: ReplyForReview; nextId: string | null }) {
   const mine = reply.myReview;
   const specialist = reply.specialistName.split(" ")[0];
 
   return (
-    <form action={saveReview.bind(null, reply.id)} className="space-y-6">
+    <form action={saveReview.bind(null, reply.id, nextId)} className="space-y-6">
       <fieldset>
         <legend className="text-sm font-semibold">How good was it?</legend>
         <div className="mt-3 grid grid-cols-5 gap-1.5">
@@ -90,7 +91,7 @@ export function ReviewForm({ reply }: { reply: ReplyForReview }) {
         <textarea id="note" name="note" rows={4} defaultValue={mine?.note ?? ""} className="textarea mt-2 w-full text-sm" />
       </div>
 
-      <SubmitButton>{mine ? "Update review" : "Save review"}</SubmitButton>
+      <SubmitButton>{nextId ? "Save and next" : mine ? "Update review" : "Save review"}</SubmitButton>
     </form>
   );
 }

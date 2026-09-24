@@ -6,8 +6,9 @@ import { BrandStandard } from "@/components/brand-standard";
 import { Conversation } from "@/components/conversation";
 import { SavedNotice } from "@/components/saved-notice";
 import { getReplyForReview } from "@/lib/data/review";
+import { getQueue } from "@/lib/data/review-queue";
 import { getViewer } from "@/lib/data/viewer";
-import { formatShortDay, formatWait } from "@/lib/dates";
+import { dayOf, formatShortDay, formatWait } from "@/lib/dates";
 import { ReviewForm } from "./review-form";
 
 export const metadata: Metadata = { title: "Review a reply" };
@@ -25,12 +26,17 @@ export default async function ReviewReplyPage({ params, searchParams }: PageProp
   const reply = await getReplyForReview(viewer, replyId);
   if (!reply) notFound();
 
+  // The next reply in that day's sample the lead hasn't reviewed yet.
+  const day = dayOf(reply.sentAt);
+  const queue = await getQueue(viewer, day);
+  const nextId = queue.sample.find((r) => r.myScore === null && r.id !== reply.id)?.id ?? null;
+
   const { saved, error } = await searchParams;
   const errorMessage = typeof error === "string" && Object.hasOwn(errors, error) ? errors[error] : null;
 
   return (
     <div className="space-y-6">
-      <Link href="/review" className="text-sm text-base-content/70 hover:text-base-content">
+      <Link href={`/review?day=${day}`} className="text-sm text-base-content/70 hover:text-base-content">
         ← Review queue
       </Link>
 
@@ -82,7 +88,7 @@ export default async function ReviewReplyPage({ params, searchParams }: PageProp
                 You reviewed this on {formatShortDay(reply.myReview.updatedAt)}. Saving again updates it.
               </p>
             )}
-            <ReviewForm reply={reply} />
+            <ReviewForm reply={reply} nextId={nextId} />
           </div>
         </aside>
       </div>
