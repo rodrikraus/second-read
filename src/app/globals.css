@@ -1,7 +1,100 @@
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: second-read --default;
+}
+
+/*
+  Colour
+
+  A reading tool, so the page is warm paper and the reply under review sits
+  on a white sheet. One action colour (ink blue), used for things you can
+  click and nothing else. Every other colour carries meaning: the five
+  score levels, and red only where something is critical. Brand chips get a
+  hue computed from the slug, so a new brand needs no design work.
+*/
+@plugin "daisyui/theme" {
+  name: "second-read";
+  default: true;
+  color-scheme: light;
+
+  --color-base-100: oklch(99.5% 0.002 85);
+  --color-base-200: oklch(97% 0.006 85);
+  --color-base-300: oklch(91.5% 0.008 85);
+  --color-base-content: oklch(25% 0.012 60);
+
+  --color-primary: oklch(43% 0.1 258);
+  --color-primary-content: oklch(98.5% 0.005 258);
+  --color-secondary: oklch(43% 0.1 258);
+  --color-secondary-content: oklch(98.5% 0.005 258);
+  --color-accent: oklch(43% 0.1 258);
+  --color-accent-content: oklch(98.5% 0.005 258);
+  --color-neutral: oklch(30% 0.012 60);
+  --color-neutral-content: oklch(97% 0.004 85);
+
+  --color-info: oklch(52% 0.09 240);
+  --color-info-content: oklch(98% 0.01 240);
+  --color-success: oklch(48% 0.09 160);
+  --color-success-content: oklch(98% 0.01 160);
+  --color-warning: oklch(72% 0.14 75);
+  --color-warning-content: oklch(28% 0.05 75);
+  --color-error: oklch(50% 0.18 27);
+  --color-error-content: oklch(98% 0.01 27);
+
+  --radius-selector: 0.375rem;
+  --radius-field: 0.375rem;
+  --radius-box: 0.625rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
 
 @theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  /* Reserved for what somebody wrote to a customer, so the thing under
+     review never looks like part of the tool. */
+  --font-serif: var(--font-source-serif), ui-serif, Georgia, serif;
+}
+
+@theme {
+  /*
+    Type scale: 15px base, ratio 1.2 upward (15, 18, 21.6, 26), two small
+    steps below for metadata. Reply text is set larger and looser, because
+    reading it is the job.
+  */
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1rem;
+  --text-sm: 0.8125rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 0.9375rem;
+  --text-base--line-height: 1.45rem;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.6rem;
+  --text-xl: 1.35rem;
+  --text-xl--line-height: 1.8rem;
+  --text-2xl: 1.625rem;
+  --text-2xl--line-height: 2.1rem;
+  --text-reading: 1.0625rem;
+  --text-reading--line-height: 1.75rem;
+
+  /* Score levels, one hue each, harmful to exemplary. */
+  --color-score-1: oklch(50% 0.18 27);
+  --color-score-2: oklch(58% 0.15 52);
+  --color-score-3: oklch(60% 0.1 88);
+  --color-score-4: oklch(53% 0.09 158);
+  --color-score-5: oklch(44% 0.1 175);
+}
+
+@layer base {
+  body {
+    @apply bg-base-200 text-base-content font-sans text-base antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  /* Scores, counts and dates line up in columns. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
 }
