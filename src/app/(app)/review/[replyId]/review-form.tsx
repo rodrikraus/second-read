@@ -1,14 +1,9 @@
 import { saveReview } from "@/app/(app)/review/actions";
 import { ScoreDot } from "@/components/score-dot";
+import { SeverityDot } from "@/components/severity-dot";
 import { SubmitButton } from "@/components/submit-button";
 import type { ReplyForReview } from "@/lib/data/review";
 import { scoreLevels, severityLabel } from "@/lib/scores";
-
-const severityDot = {
-  critical: "bg-error",
-  major: "bg-warning",
-  minor: "bg-base-content/30",
-} as const;
 
 // A plain HTML form: a score, the criteria the reply missed, and a note to
 // the specialist. It posts to the saveReview server action.
@@ -70,7 +65,7 @@ export function ReviewForm({ reply, nextId }: { reply: ReplyForReview; nextId: s
                 <span>
                   <span className="flex items-center gap-2 text-sm">
                     {criterion.label}
-                    <span aria-hidden="true" className={`size-1.5 shrink-0 rounded-full ${severityDot[criterion.severity]}`} />
+                    <SeverityDot severity={criterion.severity} />
                     <span className="sr-only">({severityLabel[criterion.severity]})</span>
                   </span>
                   {criterion.guidance && (

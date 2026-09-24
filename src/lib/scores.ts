@@ -11,6 +11,11 @@ export const scoreLevels = [
 
 export type Score = (typeof scoreLevels)[number]["score"];
 
+// The score an average rounds to, for its colour dot.
+export function nearestScore(average: number): Score {
+  return Math.min(5, Math.max(1, Math.round(average))) as Score;
+}
+
 export const severityLabel = {
   critical: "Critical",
   major: "Major",
