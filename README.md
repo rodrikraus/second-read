@@ -6,7 +6,7 @@ Built for the Sellervate Product Engineer technical exercise.
 
 ## Run it locally
 
-You need Node 20.9 or newer and Docker Desktop running.
+You need Node 22 or newer (Supabase's JavaScript client requires it) and Docker Desktop running.
 
 ```bash
 git clone https://github.com/rodrikraus/second-read.git
