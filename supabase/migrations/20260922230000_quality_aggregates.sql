@@ -8,6 +8,14 @@
 -- Only sampled reviews count. Hand-picked reviews are chosen for looking bad,
 -- so including them would make every trend worse than the work.
 
+-- Where "the last N weeks" starts: the Monday N-1 calendar weeks ago, so the
+-- current week counts as one of them. Every function below uses this one
+-- definition, so numbers that sit side by side cover the same days.
+create function private.weeks_back(p_weeks int) returns timestamptz
+language sql stable set search_path = '' as $fn$
+  select date_trunc('week', now()) - make_interval(weeks => p_weeks - 1)
+$fn$;
+
 -- Weekly average of sampled scores, for a brand or one specialist on it.
 create function public.weekly_scores(p_brand_id uuid, p_specialist_id uuid default null, p_weeks int default 12)
 returns table (week date, reviews bigint, avg_score numeric, met_standard numeric)
@@ -21,7 +29,7 @@ language sql stable set search_path = '' as $$
    where rv.brand_id = p_brand_id
      and rv.selection = 'sample'
      and (p_specialist_id is null or rp.specialist_id = p_specialist_id)
-     and rp.sent_at >= date_trunc('week', now()) - make_interval(weeks => p_weeks - 1)
+     and rp.sent_at >= private.weeks_back(p_weeks)
    group by 1
    order by 1
 $$;
@@ -35,13 +43,13 @@ returns table (
 )
 language sql stable set search_path = '' as $$
   with sampled as (
-    select rv.id, rp.sent_at >= now() - make_interval(weeks => p_weeks) as recent
+    select rv.id, rp.sent_at >= private.weeks_back(p_weeks) as recent
       from public.reviews rv
       join public.replies rp on rp.id = rv.reply_id
      where rv.brand_id = p_brand_id
        and rv.selection = 'sample'
        and (p_specialist_id is null or rp.specialist_id = p_specialist_id)
-       and rp.sent_at >= now() - make_interval(weeks => 2 * p_weeks)
+       and rp.sent_at >= private.weeks_back(2 * p_weeks)
   ),
   totals as (
     select count(*) filter (where recent) as recent_n,
@@ -67,15 +75,15 @@ create function public.specialist_scores(p_brand_id uuid, p_weeks int default 4)
 returns table (specialist_id uuid, full_name text, recent_reviews bigint, recent_avg numeric, previous_avg numeric)
 language sql stable set search_path = '' as $$
   select p.id, p.full_name,
-         count(*) filter (where rp.sent_at >= now() - make_interval(weeks => p_weeks)),
-         round(avg(rv.score) filter (where rp.sent_at >= now() - make_interval(weeks => p_weeks)), 2),
-         round(avg(rv.score) filter (where rp.sent_at < now() - make_interval(weeks => p_weeks)), 2)
+         count(*) filter (where rp.sent_at >= private.weeks_back(p_weeks)),
+         round(avg(rv.score) filter (where rp.sent_at >= private.weeks_back(p_weeks)), 2),
+         round(avg(rv.score) filter (where rp.sent_at < private.weeks_back(p_weeks)), 2)
     from public.reviews rv
     join public.replies rp on rp.id = rv.reply_id
     join public.people p on p.id = rp.specialist_id
    where rv.brand_id = p_brand_id
      and rv.selection = 'sample'
-     and rp.sent_at >= now() - make_interval(weeks => 2 * p_weeks)
+     and rp.sent_at >= private.weeks_back(2 * p_weeks)
    group by p.id, p.full_name
    order by 4 nulls last, 2
 $$;
@@ -92,7 +100,7 @@ language sql stable set search_path = '' as $$
     from public.replies r
    where r.brand_id = p_brand_id
      and public.in_sample(r)
-     and r.sent_at >= now() - make_interval(weeks => p_weeks)
+     and r.sent_at >= private.weeks_back(p_weeks)
      and r.sent_at < date_trunc('day', now())
 $$;
 
@@ -102,6 +110,9 @@ revoke execute on function
   public.specialist_scores(uuid, int),
   public.sample_coverage(uuid, int)
   from public, anon;
+
+revoke execute on function private.weeks_back(int) from public;
+grant execute on function private.weeks_back(int) to authenticated;
 
 grant execute on function
   public.weekly_scores(uuid, uuid, int),
