@@ -1,3 +1,4 @@
+import { DismissibleDetails } from "@/components/dismissible-details";
 import { demoAccounts } from "@/lib/auth/demo-accounts";
 import { signInAs, signOut } from "@/lib/auth/actions";
 import type { Viewer } from "@/lib/data/viewer";
@@ -18,8 +19,11 @@ function describe(viewer: Viewer) {
 
 export function UserSwitcher({ viewer }: { viewer: Viewer }) {
   return (
-    <details className="dropdown dropdown-end">
-      <summary className="flex cursor-pointer list-none items-center gap-3 rounded-field px-2 py-1 hover:bg-base-200">
+    <DismissibleDetails className="dropdown dropdown-end">
+      <summary
+        aria-label={`Account menu: ${viewer.fullName}`}
+        className="flex cursor-pointer list-none items-center gap-3 rounded-field px-2 py-1 hover:bg-base-200"
+      >
         <span className="grid size-8 place-items-center rounded-full bg-neutral text-xs font-semibold text-neutral-content">
           {initials(viewer.fullName)}
         </span>
@@ -64,6 +68,6 @@ export function UserSwitcher({ viewer }: { viewer: Viewer }) {
           </form>
         </div>
       </div>
-    </details>
+    </DismissibleDetails>
   );
 }
