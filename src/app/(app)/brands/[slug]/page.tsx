@@ -1,24 +1,18 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { ScoreDot } from "@/components/score-dot";
+import { SeverityDot } from "@/components/severity-dot";
 import { StatTile } from "@/components/stat-tile";
 import { TrendChart } from "@/components/trend-chart";
 import { getBrandQuality, type MissRate, type SpecialistRow } from "@/lib/data/brand-quality";
 import { getViewer } from "@/lib/data/viewer";
 import { describeChange, formatScore, formatShare } from "@/lib/format";
-import { severityLabel, type Score } from "@/lib/scores";
+import { nearestScore, severityLabel } from "@/lib/scores";
 
 export const metadata: Metadata = { title: "Brand quality" };
 
 // Below this share of the sample reviewed, the trend leans on whatever got opened.
 const COVERAGE_FLOOR = 0.6;
-
-const severityDot = { critical: "bg-error", major: "bg-warning", minor: "bg-base-content/30" } as const;
-
-// The score level an average rounds to, for its colour dot.
-function nearestScore(average: number): Score {
-  return Math.min(5, Math.max(1, Math.round(average))) as Score;
-}
 
 export default async function BrandPage({ params }: PageProps<"/brands/[slug]">) {
   const viewer = await getViewer();
@@ -113,7 +107,7 @@ function MissList({ misses }: { misses: MissRate[] }) {
         <li key={miss.criterionId} className="space-y-2 px-5 py-3">
           <div className="flex items-baseline justify-between gap-4">
             <span className="flex items-center gap-2 text-sm">
-              <span aria-hidden="true" className={`size-1.5 shrink-0 rounded-full ${severityDot[miss.severity]}`} />
+              <SeverityDot severity={miss.severity} />
               {miss.label}
               <span className="sr-only">({severityLabel[miss.severity]})</span>
             </span>
