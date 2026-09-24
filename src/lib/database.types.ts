@@ -159,6 +159,7 @@ export type Database = {
           specialist_id: string
           subject: string
           ticket_ref: string
+          in_sample: boolean | null
         }
         Insert: {
           body: string
@@ -298,7 +299,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      in_sample: {
+        Args: { "": Database["public"]["Tables"]["replies"]["Row"] }
+        Returns: {
+          error: true
+        } & "the function public.in_sample with parameter or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache"
+      }
+      save_review: {
+        Args: {
+          p_criterion_ids: string[]
+          p_note: string
+          p_reply_id: string
+          p_score: number
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
