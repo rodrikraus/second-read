@@ -3,7 +3,7 @@
 
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(9);
+select plan(12);
 
 insert into auth.users (id, email, aud, role) values
   ('00000000-0000-0000-0000-00000000000a', 'lead-a@test', 'authenticated', 'authenticated'),
@@ -87,6 +87,31 @@ select throws_ok(
   $$ select public.save_review('40000000-0000-0000-0000-000000000002', 3::smallint, '', '{}') $$,
   '23503', null,
   'a reply on a brand the lead does not lead is not found'
+);
+
+-- Brand A retires the criterion that is still flagged on the review.
+reset role;
+update public.criteria set retired_at = now() where id = '30000000-0000-0000-0000-0000000000a2';
+set local role authenticated;
+set local request.jwt.claims = '{"sub": "00000000-0000-0000-0000-00000000000a", "role": "authenticated"}';
+
+select throws_ok(
+  $$ select public.save_review('40000000-0000-0000-0000-000000000001', 4::smallint, '',
+       '{30000000-0000-0000-0000-0000000000a2}') $$,
+  '23514', null,
+  'a retired criterion cannot be flagged'
+);
+
+select lives_ok(
+  $$ select public.save_review('40000000-0000-0000-0000-000000000001', 4::smallint, 'edited after a criterion was retired', '{}') $$,
+  'a review can still be edited after one of its criteria is retired'
+);
+
+select results_eq(
+  $$ select array(select f.criterion_id from public.review_flags f join public.reviews r on r.id = f.review_id
+                   where r.reply_id = '40000000-0000-0000-0000-000000000001') $$,
+  $$ values (array['30000000-0000-0000-0000-0000000000a2'::uuid]) $$,
+  'the edit keeps the flag on the retired criterion'
 );
 
 reset role;

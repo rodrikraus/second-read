@@ -47,15 +47,29 @@ begin
     raise exception 'reply % not found', p_reply_id using errcode = 'foreign_key_violation';
   end if;
 
+  -- A retired criterion can no longer be flagged.
+  if exists (
+    select 1 from public.criteria c
+     where c.id = any (v_criterion_ids)
+       and c.retired_at is not null
+  ) then
+    raise exception 'a retired criterion cannot be flagged' using errcode = 'check_violation';
+  end if;
+
   insert into public.reviews (reply_id, brand_id, score, note)
   values (p_reply_id, v_brand_id, p_score, coalesce(p_note, ''))
   on conflict (reply_id, reviewer_id)
   do update set score = excluded.score, note = excluded.note
   returning id into v_review_id;
 
-  delete from public.review_flags
-   where review_id = v_review_id
-     and criterion_id <> all (v_criterion_ids);
+  -- Flags on criteria retired since the review was written stay as they
+  -- were, so an old review keeps its meaning after an edit.
+  delete from public.review_flags f
+   using public.criteria c
+   where f.review_id = v_review_id
+     and c.id = f.criterion_id
+     and c.retired_at is null
+     and f.criterion_id <> all (v_criterion_ids);
 
   insert into public.review_flags (review_id, criterion_id, brand_id)
   select v_review_id, c.id, v_brand_id
