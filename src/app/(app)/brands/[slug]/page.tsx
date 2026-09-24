@@ -106,7 +106,6 @@ function MissList({ misses }: { misses: MissRate[] }) {
   if (misses.length === 0) {
     return <p className="px-5 py-6 text-sm text-base-content/70">Nothing flagged in the sample for 8 weeks.</p>;
   }
-  const widest = Math.max(...misses.map((m) => Math.max(m.recentRate, m.previousRate ?? 0)), 0.01);
 
   return (
     <ul className="divide-y divide-base-300">
@@ -121,7 +120,7 @@ function MissList({ misses }: { misses: MissRate[] }) {
             <span className="tabular shrink-0 text-sm font-semibold">{formatShare(miss.recentRate)}</span>
           </div>
           <div className="h-1.5 rounded-full bg-base-200" aria-hidden="true">
-            <div className="h-1.5 rounded-full bg-base-content/70" style={{ width: `${(miss.recentRate / widest) * 100}%` }} />
+            <div className="h-1.5 rounded-full bg-base-content/70" style={{ width: `${miss.recentRate * 100}%` }} />
           </div>
           {miss.previousRate !== null && (
             <p className="tabular text-xs text-base-content/70">
