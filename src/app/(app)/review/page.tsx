@@ -53,10 +53,12 @@ export default async function ReviewQueuePage() {
                 <span className="tabular text-sm text-base-content/70">
                   {reviewed} of {queue.sample.length} reviewed
                 </span>
-                {next && (
+                {next ? (
                   <Link href={`/review/${next.id}`} className="btn btn-primary btn-sm">
                     {reviewed === 0 ? "Start reviewing" : "Continue"}
                   </Link>
+                ) : (
+                  queue.sample.length > 0 && <span className="text-sm font-medium text-success">✓ Sample done</span>
                 )}
               </div>
             </div>
