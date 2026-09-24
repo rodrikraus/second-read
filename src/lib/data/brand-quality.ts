@@ -105,11 +105,12 @@ export async function getBrandQuality(viewer: Viewer, slug: string): Promise<Bra
 
   const topMisses = await Promise.all(
     (specialists.data ?? []).map(async (s) => {
-      const { data } = await supabase.rpc("criterion_miss_rates", {
+      const { data, error } = await supabase.rpc("criterion_miss_rates", {
         p_brand_id: brand.id,
         p_specialist_id: s.specialist_id,
         p_weeks: 4,
       });
+      if (error) throw new Error(`Could not load ${brand.name}'s numbers: ${error.message}`);
       const top = toMissRates(data ?? []).find((m) => m.recentMisses > 0);
       return top?.label ?? null;
     }),
