@@ -1,8 +1,10 @@
 # Second Read
 
-An internal tool for reviewing customer support replies after they went out: a team lead records what they thought of a reply, the specialist reads it back.
+An internal tool for reviewing customer support replies after they went out: a team lead records what they thought of a reply, and the specialist reads it back.
 
-Built for the Sellervate Product Engineer technical exercise.
+Built for the Sellervate Product Engineer technical exercise. Why it is shaped this way, and what was left out, is in [DECISIONS.md](DECISIONS.md).
+
+**Time spent: 6 hours, 2 hours each day on 22, 23 and 24 September.** Every change after the initial commit went through a reviewed pull request, and the history is unsquashed.
 
 ## Run it locally
 
@@ -35,6 +37,12 @@ Open http://localhost:3000 and pick a person. Sign-in is stubbed: the picker ope
 | Sofía Méndez | Specialist | Voltra, Boxwell |
 | Leo Varela | Specialist | Boxwell, Oddbird Coffee |
 
+A two-minute tour:
+
+1. **As Marta**, the review queue opens on yesterday, with the daily sample first. Open a reply, pick a score, tick what was off, write a note, and *Save and next* takes you to the next one. One reply in the sample tells a customer their battery warranty is 6 months. It is 12.
+2. **Boxwell** in the top bar is the page Marta would show that client. Leo's month of skipping the order history shows up under *What keeps going wrong*.
+3. **As Dani**, *My feedback* has his scores and what Marta and Nuria wrote on them. He sees nobody else's.
+
 ## Checking the isolation yourself
 
 `npm run db:test` runs the pgTAP checks in `supabase/tests`, as anon, a lead and two specialists.
@@ -48,6 +56,24 @@ curl -s "http://127.0.0.1:54321/rest/v1/replies?brand_id=eq.20000000-0000-4000-8
 # []
 ```
 
+## What is where
+
+| Path | What it holds |
+|---|---|
+| `supabase/migrations/` | Schema, row level security and grants, the review write path, the quality aggregates |
+| `supabase/tests/` | pgTAP checks, run as each role |
+| `supabase/seed.sql` | Three brands, five people, nine weeks of history, and yesterday's queue |
+| `src/lib/data/` | The server-only data layer. Every query runs as the signed-in user |
+| `src/lib/auth/` | The stubbed sign-in |
+| `src/app/(app)/review/` | The queue and the review screen |
+| `src/app/(app)/brands/[slug]/` | A brand's quality page |
+| `src/app/(app)/feedback/` | A specialist's own feedback |
+| `src/app/globals.css` | Type scale and colour system |
+
+## Tests
+
+`npm run db:test` runs 40 pgTAP checks as anon, a lead and two specialists: who can see and write what, the review write path, and the numbers behind the brand page. There are no UI tests. DECISIONS.md says why.
+
 ## Stack
 
-Next.js 16 (App Router, TypeScript), Supabase (local Postgres and Auth), Tailwind CSS 4 with daisyUI 5. Started from `create-next-app` 16.3.6.
+Next.js 16 (App Router, TypeScript), Supabase (local Postgres and Auth), Tailwind CSS 4 with daisyUI 5. Started from `create-next-app` 16.3.6. Built with Claude Code.
